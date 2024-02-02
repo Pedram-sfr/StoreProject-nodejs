@@ -4,7 +4,9 @@ const path = require("path");
 const { AllRoutes } = require("./router/router");
 const morgan = require("morgan");
 const createError = require("http-errors");
-const { create } = require("domain");
+const swaggerUI = require("swagger-ui-express");
+const swaggerJsDoc = require("swagger-jsdoc");
+const cors = require("cors")
 module.exports = class Appllication{
     #app = express()
     #DB_URI;
@@ -14,15 +16,32 @@ module.exports = class Appllication{
         this.#PORT = PORT;
         this.configApplication();
         this.connectedToMongoDb();
+        this.initRedis();
         this.createServer();
         this.createRoutes();
         this.errorHnadling();
     }
     configApplication(){
+        this.#app.use(cors());
         this.#app.use(morgan("dev"))
         this.#app.use(express.json());
         this.#app.use(express.urlencoded({extended: true}))
         this.#app.use(express.static(path.join(__dirname,"..","public")))
+        this.#app.use("/api-doc",swaggerUI.serve,swaggerUI.setup(swaggerJsDoc({
+            swaggerDefinition: {
+                info: {
+                    title: "Pedram Local Test Store",
+                    version: "1.0.0",
+                    description: "نمونه پروژه بک اند با nodejs"
+                },
+                servers: [
+                    {
+                        url: "http://localhost:"+this.#PORT
+                    }
+                ]
+            },
+            apis:["./app/router/**/*.swagger.js"]
+        })))
     }
     createServer(){
         const http = require("http");
@@ -46,6 +65,9 @@ module.exports = class Appllication{
             await mongoose.connection.close();
             process.exit(0);
         })
+    }
+    initRedis(){
+        require("./utils/init_redis")
     }
     createRoutes(){
         this.#app.use(AllRoutes)
