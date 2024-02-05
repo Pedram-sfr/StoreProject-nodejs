@@ -29,6 +29,7 @@ module.exports = class Appllication{
         this.#app.use(express.static(path.join(__dirname,"..","public")))
         this.#app.use("/api-doc",swaggerUI.serve,swaggerUI.setup(swaggerJsDoc({
             swaggerDefinition: {
+                openapi: "3.0.0",
                 info: {
                     title: "Pedram Local Test Store",
                     version: "1.0.0",
@@ -38,10 +39,23 @@ module.exports = class Appllication{
                     {
                         url: "http://localhost:"+this.#PORT
                     }
-                ]
+                ],
+                components:{
+                    securitySchemes:{
+                        BearerAuth:{
+                            type: "http",
+                            scheme:"bearer",
+                            bearerFormat: "JWT"
+                        }
+                    }
+                },
+                security:[{BearerAuth : []}]
             },
             apis:["./app/router/**/*.swagger.js"]
-        })))
+        }),{
+            explorer: true
+        }
+        ))
     }
     createServer(){
         const http = require("http");

@@ -1,8 +1,10 @@
 const createHttpError = require("http-errors");
 const JWT = require("jsonwebtoken");
 const { UserModel } = require("../model/users");
+const fs = require("fs")
 const { ACCESS_TOKEN_SECRET_KEY, REFRESH_TOKEN_SECRET_KEY } = require("./constans");
-const redisClient = require("./init_redis")
+const redisClient = require("./init_redis");
+const path = require("path");
 
 function numberRandom(){
     return Math.floor((Math.random() * 90000)+10000)
@@ -14,7 +16,7 @@ function SignAccessToken(userId){
             phone: user.phone
         };
         const options = {
-            expiresIn: "1h"
+            expiresIn: "1y"
         };
         JWT.sign(payload,ACCESS_TOKEN_SECRET_KEY,options,(err,token)=>{
             if(err) reject(createHttpError.InternalServerError("خطای سرور"));
@@ -49,15 +51,23 @@ function VerifyRefreshToken(token){
             const {phone} = payload || {};
             const user = await UserModel.findOne({phone},{password: 0, otp: 0})
             if(!user) reject(createHttpError.Unauthorized("حساب کاربری یافت نشد"));
-            const refreshToken = await redisClient.get(String(user._id));
+            const refreshToken = await redisClient.get(String(user?._id || "key_default"));
+            if(!refreshToken) reject(createHttpError.Unauthorized("ورود مجدد انجام نشد"))
             if(token === refreshToken) return resolve(phone);
             reject(createHttpError.Unauthorized("ورود مجدد انجام نشد"))
         })
     })
 }
+function deleteFileInPublic(fileAddress){
+    if(fileAddress){
+        const pathFile = path.join(__dirname,"..","..","public",fileAddress)
+        if(fs.existsSync(pathFile)) fs.unlinkSync(pathFile)
+    }
+}
 module.exports = {
     numberRandom,
     SignAccessToken,
     SignRefreshToken,
-    VerifyRefreshToken
+    VerifyRefreshToken,
+    deleteFileInPublic
 }
