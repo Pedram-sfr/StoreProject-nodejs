@@ -1,21 +1,21 @@
 const path = require("path");
 const fs = require("fs")
 const multer = require("multer");
-const { string } = require("@hapi/joi");
 const createHttpError = require("http-errors");
 function createroute(req){
     const date = new Date();
     const year = date.getFullYear().toString();
     const month = date.getMonth().toString();
     const day = date.getDay().toString();
-    const directory = path.join(__dirname,"..","..","public","uploads","blogs",year,month,day);
-    req.body.fileUploadPath = path.join("uploads","blogs",year,month,day);
+    const directory = path.join(__dirname,"..","..","public","uploads",((req.baseUrl).split("/")[2]).toString(),year,month,day);
+    req.body.fileUploadPath = path.join("uploads",((req.baseUrl).split("/")[2]).toString(),year,month,day);
     fs.mkdirSync(directory,{recursive:true});
     return directory
 }
 const storage = multer.diskStorage({
     destination : (req,file,cb)=>{
         if(file?.originalname){
+            // console.log()
             const filePath = createroute(req);
             return cb(null,filePath)
         }
@@ -33,7 +33,6 @@ const storage = multer.diskStorage({
 });
 function fileFilter(req,file,cb){
     const ext = path.extname(file.originalname)
-    console.log(ext);
     const mimetypes = [".jpeg",".jpg",".png",".webp",".gif"]
 
     if(mimetypes.includes(ext)){
