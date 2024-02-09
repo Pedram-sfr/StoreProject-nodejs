@@ -1,36 +1,36 @@
-const { deleteFileInPublic, ListOfImagesFromRequest } = require("../../../utils/functions")
+const { deleteFileInPublic, ListOfImagesFromRequest, copyObject, setFeatures, deleteInvalidPropertyInObject } = require("../../../utils/functions")
 const { createProductSchema } = require("../../validators/admin/product.schema")
 const Controller = require("../controller")
 const { ProductModel } = require("../../../model/products");
 const path = require("path");
 const { ObjectIdValidator } = require("../../validators/public.validator");
 const createHttpError = require("http-errors");
-
-
+const {StatusCodes: HttpStatus} = require("http-status-codes");
+const ProductBlackList = {
+    BOOKMARKS: "bookmarks",
+    LIKES: "likes",
+    DISLIKES: "dislikes",
+    COMMENTS: "comments",
+    SUPPLIER: "supplier",
+    WEIGHT: "weight",
+    WIDTH: "width",
+    LENGTH: "length",
+    HEIGHT: "height",
+    COLORS: "colors"
+  }
+  Object.freeze(ProductBlackList)
 class ProductController extends Controller{
     async addProduct(req,res,next){
         try {
-            const productBody = await createProductSchema.validateAsync(req.body)
-            console.log(req.body.color);
+            const productBody = await createProductSchema.validateAsync(req.body);
             const images = ListOfImagesFromRequest(req?.files || [],req.body.fileUploadPath)
-            const {title,text,short_text,tags,category,price,type,count,discount,width,height,length,weight } = productBody;
+            const {title,text,short_text,tags,category,price,type,count,discount } = productBody;
             const supplier = req.user._id
-            let feture ={};
-            // feture.colors = colors;
-            if(!isNaN(+width) || !isNaN(+height) || !isNaN(+length) || !isNaN(+weight)){
-                if(!width) feture.width = 0;
-                    else feture.width = +width;
-                if(!height) feture.height = 0;
-                    else feture.height = +height;
-                if(!length) feture.length = 0;
-                    else feture.length = +length;
-                if(!weight) feture.weight = 0;
-                    else feture.weight = +weight;
-            }
-            const product = await ProductModel.create({supplier,title,text,short_text,tags,category,type,price,count,discount,feture,images,type})
-            return res.status(201).json({
+            const feature = setFeatures(req.body);
+            const product = await ProductModel.create({supplier,title,text,short_text,tags,category,type,price,count,discount,feature,images,type})
+            return res.status(HttpStatus.CREATED).json({
+                statusCode: HttpStatus.CREATED,
                 data:{
-                    statusCode: 201,
                     message: "ثبت محصول با موفقیت انجام شد"
                 },
                 error: null
@@ -42,7 +42,22 @@ class ProductController extends Controller{
     }
     async editProduct(req,res,next){
         try {
-            
+            const {id} = req.params;
+            const product = await this.findProductById(id);
+            const data = copyObject(req.body);
+            data.images = ListOfImagesFromRequest(req?.files || [],req.body.fileUploadPath);
+           data.feature = setFeatures(req.body);
+            let blackLisFields = Object.values(ProductBlackList);
+            deleteInvalidPropertyInObject(data,blackLisFields)
+            const productUpdateResault = await ProductModel.updateOne({_id: product._id},{$set: data})
+            if(productUpdateResault.modifiedCount == 0 ) throw {data: null,errors:{statusCode: HttpStatus.InternalServerError , message: "خطا در انجام عملیات"}};
+            return res.status(HttpStatus.OK).json({
+                statusCode: HttpStatus.OK,
+                data:{
+                    message : "عملیات با موفقیت انجام شد"
+                },
+                errors: null
+            })
         } catch (error) {
             next(error)
         }
@@ -53,9 +68,9 @@ class ProductController extends Controller{
             const product = await this.findProductById(id);
             const removeProductResult = await ProductModel.deleteOne({_id:product._id});
             if(removeProductResult.deletedCount == 0 ) throw createHttpError.InternalServerError("خطای سرور")
-            return res.status(200).json({
+            return res.status(HttpStatus.OK).json({
+                statusCode: HttpStatus.OK,
                 data: {
-                    statusCode: 200,
                     message: "حذف محصول با موفقیت انجام شد"
                 },
                 errors: null
@@ -66,11 +81,20 @@ class ProductController extends Controller{
     }
     async getAllProducts(req,res,next){
         try {
-            const product = await ProductModel.find({});
-            return res.status(200).json({
+            const search = req?.query?.search || "";
+            let products;
+            if(search){
+               products = await ProductModel.find({
+                    $text:{
+                        $search: new RegExp(search,"ig")
+                    }
+                });
+            }else
+                products = await ProductModel.find({});
+            return res.status(HttpStatus.OK).json({
+                statusCode: HttpStatus.OK,
                 data: {
-                    statusCode: 200,
-                    product
+                    products
                 },
                 errors: null
 
@@ -83,9 +107,9 @@ class ProductController extends Controller{
         try {
             const {id} = req.params;
             const product = await this.findProductById(id);
-            return res.status(200).json({
+            return res.status(HttpStatus.OK).json({
+                statusCode: HttpStatus.OK,
                 data: {
-                    statusCode: 200,
                     product
                 },
                 errors: null

@@ -1,7 +1,7 @@
 const { default: mongoose } = require("mongoose");
 const { CommentSchema } = require("./public.schema");
 
-const Schema = new mongoose.Schema({
+const ProductSchema = new mongoose.Schema({
     title: {type: String, required: true},
     short_text: {type: String, required: true},
     text: {type: String, required: true},
@@ -18,7 +18,7 @@ const Schema = new mongoose.Schema({
     type: {type: String, required: true},
     format: {type: String},
     supplier: {type: mongoose.Types.ObjectId, required: true},
-    feture: {type: Object, default:{
+    feature: {type: Object, default:{
         length: "",
         height: "",
         width: "",
@@ -29,7 +29,7 @@ const Schema = new mongoose.Schema({
     }},
 
 })
-
+ProductSchema.index({title: "text", short_text: "text", text: "text"})
 module.exports = {
-    ProductModel: mongoose.model("product",Schema)
+    ProductModel: mongoose.model("product",ProductSchema)
 }

@@ -3,6 +3,8 @@ const { CategoryModel } = require("../../../model/categories")
 const Controller = require("../controller");
 const { addCategorySchema, updateCategorySchema } = require("../../validators/admin/category.schema");
 const mongoose = require("mongoose");
+const {StatusCodes: HttpStatus} = require("http-status-codes");
+
 class CategoryController extends Controller{
 
     async addCategory(req,res,next){
@@ -11,12 +13,12 @@ class CategoryController extends Controller{
             const {title,parent} = req.body
             const category = await CategoryModel.create({title,parent});
             if(!category) throw createHttpError.InternalServerError("خطای داخلی");
-            return res.status(201).json({
+            return res.status(HttpStatus.CREATED).json({
+                statusCode: HttpStatus.CREATED,
                 data:{
-                    statusCode: 201,
                     message: "دسته بندی با موفقیت اقزوده شد"
                 },
-                error: null
+                errors: null
             })
         } catch (error) {
             next(error)
@@ -33,11 +35,12 @@ class CategoryController extends Controller{
                 ]
             })
             if(deleteRes.deletedCount == 0) throw createHttpError.InternalServerError("حذف دسته بندی انجام نشد");
-            return res.status(200).json({
+            return res.status(HttpStatus.OK).json({
+                statusCode: HttpStatus.OK,
                 data: {
-                    statusCode: 200,
                     message: "حذف دسته بندی با موفقیت انحام شد"
-                }
+                },
+                errors: null
             })
         } catch (error) {
             next(error)
@@ -51,12 +54,12 @@ class CategoryController extends Controller{
             await updateCategorySchema.validateAsync(req.body)
             const resulat = await CategoryModel.updateOne({_id: id},{$set:{title}})
             if(resulat.modifiedCount == 0) throw createHttpError.InternalServerError("بروزرسانی با موفقیت انجام نشد");
-            return res.status(200).json({
+            return res.status(HttpStatus.OK).json({
+                statusCode : HttpStatus.OK,
                 data: {
-                    statusCode : 200,
                     message: "بروز رسانی با موفقیت انجام شد"
                 },
-                error: null
+                errors: null
             })
         } catch (error) {
             next(error)
@@ -113,11 +116,12 @@ class CategoryController extends Controller{
             // ])
 
             const categories = await CategoryModel.find({parent : undefined},{__v:0})
-            return res.status(200).json({
+            return res.status(HttpStatus.OK).json({
+                statusCode: HttpStatus.OK,
                 date:{
                     categories 
                 },
-                error: null
+                errors: null
             })
         } catch (error) {
             next(error)
@@ -153,14 +157,14 @@ class CategoryController extends Controller{
             const categories = await CategoryModel.aggregate([{
                 $match:{}
             }])
-            return res.status(200).json({
+            return res.status(HttpStatus.OK).json({
+                statusCode: HttpStatus.OK,
                 date:{
-                    statusCode: 200,
                     message: {
                         categories 
                     }
                 },
-                error: null
+                errors: null
             })
         } catch (error) {
             next(error)
@@ -193,14 +197,12 @@ class CategoryController extends Controller{
                     }
                 }
             ])
-            return res.status(200).json({
+            return res.status(HttpStatus.OK).json({
+                statusCode: HttpStatus.OK,
                 data: {
-                    statusCode: 200,
-                    message: {
-                        category
-                    }
+                    category
                 },
-                error: null
+                errors: null
             })
         } catch (error) {
             next(error)
@@ -209,11 +211,12 @@ class CategoryController extends Controller{
     async getAllParents(req,res,next){
         try {
             const parents = await CategoryModel.find({parent : undefined},{__v:0}) 
-            return res.status(200).json({
+            return res.status(HttpStatus.OK).json({
+                statusCode: HttpStatus.OK,
                 date:{
                     parents
                 },
-                error: null
+                errors: null
             })
         } catch (error) {
             next(error)
@@ -223,11 +226,13 @@ class CategoryController extends Controller{
         try {
             const {parent} = req.params;
             const child = await CategoryModel.find({parent},{__v:0,parent:0})
-            return res.status(200).json({
+            return res.status(HttpStatus.OK).json({
+                statusCode: HttpStatus.OK,
+
                 date:{
                     child
                 },
-                error: null
+                errors: null
             })
         } catch (error) {
             next(error)
