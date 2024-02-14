@@ -31,6 +31,10 @@ const CourseSchema = new mongoose.Schema({
     teacher: {type: mongoose.Types.ObjectId,ref:"user", required: true},
     chapters: {type:[Chapter],default: []},
     students: {type: [mongoose.Types.ObjectId],ref: "user",default: []}
+},{
+    toJSON:{
+        virtuals: true
+    }
 })
 CourseSchema.index({title: "text", short_text: "text", text: "text"})
 module.exports = {

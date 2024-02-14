@@ -1,7 +1,7 @@
 const createHttpError = require("http-errors");
-const { CategoryModel } = require("../../../model/categories")
-const Controller = require("../controller");
-const { addCategorySchema, updateCategorySchema } = require("../../validators/admin/category.schema");
+const { CategoryModel } = require("../../../../model/categories")
+const Controller = require("../../controller");
+const { addCategorySchema, updateCategorySchema } = require("../../../validators/admin/category.schema");
 const mongoose = require("mongoose");
 const {StatusCodes: HttpStatus} = require("http-status-codes");
 

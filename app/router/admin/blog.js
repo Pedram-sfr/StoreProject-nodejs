@@ -1,4 +1,4 @@
-const { AdminBlogComtroller } = require("../../http/controllers/admin/blog.contoller");
+const { AdminBlogComtroller } = require("../../http/controllers/admin/blog/blog.contoller");
 const { stringToArray } = require("../../http/middlewares/stringToArray");
 const { uploadFile } = require("../../utils/multer");
 

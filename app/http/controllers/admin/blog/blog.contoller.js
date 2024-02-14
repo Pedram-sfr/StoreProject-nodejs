@@ -1,11 +1,11 @@
-const { createBlogSchema } = require("../../validators/admin/blog.schema");
-const Controller = require("../controller");
+const { createBlogSchema } = require("../../../validators/admin/blog.schema");
+const Controller = require("../../controller");
 const path = require("path")
-const { BlogModel } = require("../../../model/blogs");
-const { deleteFileInPublic } = require("../../../utils/functions");
+const { BlogModel } = require("../../../../model/blogs");
+const { deleteFileInPublic } = require("../../../../utils/functions");
 const createHttpError = require("http-errors");
 const {StatusCodes: HttpStatus} = require("http-status-codes");
-const blog = require("../../../router/admin/blog");
+const blog = require("../../../../router/admin/blog");
 class BlogController extends Controller{
     async createBlog(req,res,next){
         try {
