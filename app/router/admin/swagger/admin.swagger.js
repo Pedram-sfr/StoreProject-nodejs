@@ -3,6 +3,10 @@
  *  tags: 
  *      -   name: AdminPanel
  *          description: Admin panel For Manage Data 
+ *      -   name: User(admin)
+ *          description: Admin panel For Manage User Data
+ *      -   name: RBAC(admin)
+ *          description: RoleBaseAccessControll System
  *      -   name: Course(admin)
  *          description: Admin panel For Manage Course Data
  *      -   name: Course(admin)

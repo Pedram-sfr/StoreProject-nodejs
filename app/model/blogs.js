@@ -30,7 +30,9 @@ Schema.virtual("category_detail",{
     localField: "_id",
     foreignField: "category",
 })
-
+Schema.virtual("imageUrl").get(function(){
+    return `${process.env.BASE_URL}:${process.env.APPLICATION_PORT}/${this.image}`
+})
 module.exports = {
     BlogModel: mongoose.model("blog",Schema)
 }

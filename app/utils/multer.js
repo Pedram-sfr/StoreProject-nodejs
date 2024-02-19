@@ -40,9 +40,20 @@ function fileFilter(req,file,cb){
     }
     return cb(createHttpError.BadRequest("فرمت ارسال شده صحیح نمیباشد"))
 }
+function videoFilter(req,file,cb){
+    const ext = path.extname(file.originalname)
+    const mimetypes = [".mp4",".mkv",".mov",".mpg",".avi"]
+
+    if(mimetypes.includes(ext)){
+        return cb(null,true)
+    }
+    return cb(createHttpError.BadRequest("فرمت ارسال شده صحیح نمیباشد"))
+}
 const maxSize = 1 * 1000 * 1000
+const videoMaxSize = 300 * 1000 * 1000
 const uploadFile = multer({storage,limits: {fileSize: maxSize},fileFilter});
+const uploadVideo = multer({storage,limits: {fileSize: videoMaxSize},videoFilter});
 
 module.exports = {
-    uploadFile
+    uploadFile,uploadVideo
 }

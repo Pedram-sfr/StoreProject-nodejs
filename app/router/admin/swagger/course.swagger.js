@@ -184,6 +184,33 @@
 
 /**
  * @swagger
+ *  /admin/courses/update/{id}:
+ *      patch:
+ *          tags: [Course(admin)]
+ *          summary: create and save course
+ *          parameters:
+ *              -   in: path
+ *                  type: string
+ *                  required: true
+ *                  name: id
+ *          requestBody:
+ *              required: true
+ *              content:
+ *                  multipart/form-data:
+ *                      schema:
+ *                          $ref: '#/components/schemas/Edit-Course'
+ *          responses:
+ *              201:
+ *                  description: created new course
+ *                  content:
+ *                      application/json:
+ *                          schema:
+ *                              $ref: '#/definitions/publicDefinition'
+ * 
+ */
+
+/**
+ * @swagger
  *  /admin/courses/list:
  *      get:
  *          tags: [Course(admin)]

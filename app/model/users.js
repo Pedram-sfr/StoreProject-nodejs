@@ -1,6 +1,6 @@
 const { default: mongoose } = require("mongoose");
 
-const Schema = new mongoose.Schema({
+const UserSchema = new mongoose.Schema({
     first_name: {type: String},
     last_name: {type: String},
     username: {type: String, lowercase: true},
@@ -16,13 +16,14 @@ const Schema = new mongoose.Schema({
     birthday: {type: String},
     roles: {type: [String], default: ["USER"]},
     courses: {type: [mongoose.Types.ObjectId],ref: "course", default: []}
-},{
-    timestamps: true,
-    toJSON:{
-        virtuals: true
+}, {
+    timestamps : true,
+    toJSON : {
+        virtuals : true
     }
-})
+});
+UserSchema.index({first_name: 'text', last_name: 'text', username: 'text', phone: 'text', email: 'text'})
 
 module.exports = {
-    UserModel: mongoose.model("user",Schema)
+    UserModel: mongoose.model("user",UserSchema)
 }

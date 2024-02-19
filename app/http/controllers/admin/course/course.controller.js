@@ -5,6 +5,7 @@ const { CourseModel } = require("../../../../model/course");
 const path = require("path");
 const createHttpError = require("http-errors");
 const { default: mongoose } = require("mongoose");
+const {copyObject, deleteInvalidPropertyInObject, deleteFileInPublic, getCourseTime} = require("../../../../utils/functions")
 
 class CourseController extends Controller{
     async getListOfCourse(req,res,next){
@@ -42,7 +43,6 @@ class CourseController extends Controller{
             const {title,text,short_text,tags,category,price,discount,type} = req.body;
             if(Number(price) > 0 && type == "free") throw createHttpError.BadRequest("برای دوره رایگان نمیتوان قیمت ثبت کرد")
             const course = await CourseModel.create({title,text,short_text,tags,category,price,discount,type,image,
-                time: "00:00:00",
                 status: "notStarted",
                 teacher: req.user._id
             });
@@ -51,6 +51,33 @@ class CourseController extends Controller{
                 statusCode: HttpStatus.CREATED,
                 data: {
                     message: "دوره با موفقیت ایجاد شد"
+                },
+                errors: null
+            })
+        } catch (error) {
+            next(error);
+        }
+    }
+    async updateCourseById(req,res,next){
+        try {
+            const {id} = req.params;
+            const course = await this.findCourseById(id);
+            const data = copyObject(req.body);
+            const {filename,fileUploadPath} = req.body
+            let blackList = ["time","chapters","episodes","students","comments","likes","dislikes","bookmarks","filename","fileUploadPath"];
+            deleteInvalidPropertyInObject(data,blackList);
+            if(req.file){
+                deleteFileInPublic(course.image)
+                data.image = path.join(fileUploadPath,filename).replace(/\\/g,"/");
+            }
+            const updateCourseResualt = await CourseModel.updateOne({_id:id},{
+                $set: data
+            })
+            if(!updateCourseResualt.modifiedCount) throw createHttpError.InternalServerError("خطای سرور")
+            return res.status(HttpStatus.OK).json({
+                statusCode: HttpStatus.OK,
+                data: {
+                    message: "دوره با موفقیت ویراش بافت"
                 },
                 errors: null
             })
@@ -74,39 +101,12 @@ class CourseController extends Controller{
             next(error);
         }
     }
-    async addChapter(req,res,next){
-        try {
-            const {id,title,text} = req.body;
-            await this.findCourseById(id);
-            const saveChapter = await CourseModel.updateOne({_id: id},{$push: {
-                chapters: {title,text,episodes: []}
-            }});
-            if(saveChapter.modifiedCount == 0) throw createHttpError.InternalServerError("فصل افزوده نشد");
-            return res.status(HttpStatus.CREATED).json({
-                statusCode: HttpStatus.CREATED,
-                data: {
-                    message: "فصل با موفقیت افزوده شد"
-                },
-                errors: null
-            })
-
-        } catch (error) {
-            next(error);
-        }
-    }
     async findCourseById(id){
         if(!mongoose.isValidObjectId(id)) throw createHttpError.BadRequest("شناسه صحیح نمیباشد");
         const course = await CourseModel.findById(id);
         if(!course) throw createHttpError.NotFound("دوره ای یافت نشد");
         return course;
     }
-    // async getListOfCourse(req,res,next){
-    //     try {
-            
-    //     } catch (error) {
-    //         next(error);
-    //     }
-    // }
 
 }
 

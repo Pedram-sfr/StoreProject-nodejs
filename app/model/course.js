@@ -1,13 +1,22 @@
 const { default: mongoose } = require("mongoose");
 const { CommentSchema } = require("./public.schema");
+const { getCourseTime } = require("../utils/functions");
 
-const Episodes = mongoose.Schema({
+const Episodes = new mongoose.Schema({
     title: {type: String, required: true},
     text: {type: String, required: true},
-    type: {type: String, default: "free"},
-    time: {type: String, required: true}
+    type: {type: String, default: "unlock"},
+    time: {type: String, required: true},
+    videoAddress: {type: String, required: true},
+},{
+    toJSON:{
+        virtuals: true
+    }
+});
+Episodes.virtual("videoUrl").get(function(){
+    return `${process.env.BASE_URL}:${process.env.APPLICATION_PORT}/${this.videoAddress}`
 })
-const Chapter = mongoose.Schema({
+const Chapter = new mongoose.Schema({
     title: {type: String, required: true},
     text: {type: String, default:""},
     episodes: {type: [Episodes], default:[]},
@@ -27,7 +36,6 @@ const CourseSchema = new mongoose.Schema({
     discount: {type: Number, default: 0},
     type: {type: String,default:"free", required: true},
     status: {type: String,default:"notStarted"},
-    time: {type: String,default: "00:00:00"},
     teacher: {type: mongoose.Types.ObjectId,ref:"user", required: true},
     chapters: {type:[Chapter],default: []},
     students: {type: [mongoose.Types.ObjectId],ref: "user",default: []}
@@ -36,7 +44,13 @@ const CourseSchema = new mongoose.Schema({
         virtuals: true
     }
 })
-CourseSchema.index({title: "text", short_text: "text", text: "text"})
+CourseSchema.index({title: "text", short_text: "text", text: "text"});
+CourseSchema.virtual("imageUrl").get(function(){
+    return `${process.env.BASE_URL}:${process.env.APPLICATION_PORT}/${this.image}`
+})
+CourseSchema.virtual("totlaTime").get(function(){
+    return getCourseTime(this.chapters || [])
+})
 module.exports = {
     CourseModel: mongoose.model("course",CourseSchema)
 }
