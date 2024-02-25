@@ -38,7 +38,7 @@
  *                                                  example: "title of permission"
  *                                              description:
  *                                                  type: string
- *                                                  example: "describe the permission"
+ *                                                  example: "desc of permission"
  *                                          
  */
 /**
@@ -56,7 +56,7 @@
  *                      description: the title of role
  *                  description:
  *                      type: string
- *                      description: the desc of role
+ *                      description: the title of role
  *                  permissions:
  *                      type: array
  *                      description: the permissionsID for role
@@ -73,7 +73,7 @@
  *                      description: the title of role
  *                  description:
  *                      type: string
- *                      description: the desc of role
+ *                      description: the title of role
  *                  permissions:
  *                      type: array
  *                      description: the permissionsID for role
@@ -146,41 +146,17 @@
  * @swagger
  *  /admin/role/remove/{field}:
  *      delete:
- *          tags: [RBAC(
- * 
- * 
- * 
- * 
- * 
- 
- 
- 
- 
- 
- 
-
-
-
-
-
-
-
-
-
-
-
-
-)]
+ *          tags: [RBAC(admin)]
  *          summary: remove the Role
  *          parameters:
  *              -   in: path
  *                  name: field
  *                  type: string
- *                  required: true    
- *                  description: send title of role or objectId of role for remove that    
+ *                  required: true
+ *          
  *          responses:
  *              200:
- *                  description: removed the Role
+ *                  description: remove the Role
  *                  content:
  *                      application/json:
  *                          schema:
