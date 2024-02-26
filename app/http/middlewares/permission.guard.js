@@ -14,7 +14,7 @@ const { PERMISSIONS } = require("../../utils/constans");
         const hasPerm = allPermissions.every(permission => {
             return userPerm.includes(permission)
         })
-        if(userPerm.includes(PERMISSIONS.ADMIN)) return next()
+        if(userPerm.includes(PERMISSIONS.ALL)) return next()
         if(allPermissions.length == 0 || hasPerm) return next();
         throw createHttpError.Forbidden("به این بخش دسترسی ندارید")
        } catch (error) {

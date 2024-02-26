@@ -27,6 +27,19 @@ function VerifyAccessToken(req,res,next){
     }
 }
 
+async function VerifyAccessTokenInQraphQl(req){
+    try {
+        const token = getToken(req.headers);
+        const {phone} = JWT.verify(token,ACCESS_TOKEN_SECRET_KEY)
+        const user = await UserModel.findOne({phone},{password: 0, otp: 0})
+        if(!user) throw createHttpError.Unauthorized("حساب کاربری یافت نشد")
+        return user
+    }catch (error) {
+        throw createHttpError.Unauthorized(req.error.message)
+    }
+}
 module.exports = {
-    VerifyAccessToken
+    VerifyAccessToken,
+    getToken,
+    VerifyAccessTokenInQraphQl
 }
