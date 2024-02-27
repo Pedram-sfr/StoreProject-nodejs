@@ -1,42 +1,51 @@
 const { GraphQLObjectType, GraphQLString, GraphQLList, GraphQLInt } = require("graphql");
 const { PublicCategoryType, UserType } = require("./public.types");
 const { CommentType } = require("./comment.type");
-const FeatureType = new GraphQLObjectType({
-    name: "feature",
-    fields: {
-        length: {type: GraphQLString},
-        height: {type: GraphQLString},
-        width: {type: GraphQLString},
-        weight: {type: GraphQLString},
-        colors: {type: new GraphQLList(GraphQLString)},
-        model: {type: new GraphQLList(GraphQLString)},
-        madein: {type: GraphQLString}
-    }
-})
-const ProductType = new GraphQLObjectType({
-    name: "ProductType",
+const EpisodeType = new GraphQLObjectType({
+    name: "EpisodeType",
     fields: {
         _id: {type: GraphQLString},
-        supplier: {type: UserType},
+        title: {type: GraphQLString},
+        text: {type: GraphQLString},
+        videoAddress: {type: GraphQLString},
+        videoUrl: {type: GraphQLString},
+        type: {type: GraphQLString },
+        time: {type: GraphQLString },
+    }
+})
+const ChapterType = new GraphQLObjectType({
+    name: "ChapterType",
+    fields: {
+        _id: {type: GraphQLString},
+        title: {type: GraphQLString},
+        text: {type: GraphQLString},
+        episodes: {type: new GraphQLList(EpisodeType)}
+    }
+})
+const CourseType = new GraphQLObjectType({
+    name: "CourseType",
+    fields: {
+        _id: {type: GraphQLString},
+        teacher: {type: UserType},
         title: {type: GraphQLString},
         short_text: {type: GraphQLString},
         text: {type: GraphQLString},
-        imageUrl: {type: new GraphQLList(GraphQLString)},
+        imageUrl: {type: GraphQLString},
         tags: {type: new GraphQLList(GraphQLString)},
         category: {type: PublicCategoryType},
         price: {type: GraphQLInt },
         discount: {type: GraphQLInt },
         count: {type: GraphQLInt },
         type: {type: GraphQLString },
-        feature: {type: FeatureType},
+        status: {type: GraphQLString },
+        chapters: {type: new GraphQLList(ChapterType)},
         comments: {type: new GraphQLList(CommentType)},
         likes: {type: GraphQLList(UserType)},
         dislikes: {type: GraphQLList(UserType)},
         bookmarks: {type: GraphQLList(UserType)},
-
     }
 })
 
 module.exports = {
-    ProductType
+    CourseType
 }

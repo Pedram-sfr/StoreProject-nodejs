@@ -1,10 +1,10 @@
 const { GraphQLList, GraphQLString } = require("graphql")
-const { ProductModel } = require("../../model/products");
-const { ProductType } = require("../typeDefs/product.type");
 const { VerifyAccessTokenInQraphQl } = require("../../http/middlewares/verifyAccessToken");
+const { CourseType } = require("../typeDefs/course.type");
+const { CourseModel } = require("../../model/course");
 
-const ProductResolver = {
-    type: new GraphQLList(ProductType),
+const CourseResolver = {
+    type: new GraphQLList(CourseType),
     args:{
         category: {type: GraphQLString}
     },
@@ -13,8 +13,8 @@ const ProductResolver = {
         const {category}=args;
         req.user = await VerifyAccessTokenInQraphQl(req)
         const findQuery = category? {category} : {};
-        return await ProductModel.find(findQuery).populate([
-            {path: 'supplier'},
+        return await CourseModel.find(findQuery).populate([
+            {path: 'teacher'},
             {path: 'category'},
             {path: 'likes'},
             {path: 'dislikes'},
@@ -25,5 +25,5 @@ const ProductResolver = {
 }
 
 module.exports ={
-    ProductResolver
+    CourseResolver
 }
