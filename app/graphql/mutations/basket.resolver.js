@@ -64,18 +64,11 @@ const AddCourseToBasket = {
         const user = await VerifyAccessTokenInQraphQl(req);
         const {courseID} = args;
         await checkExistCourse(courseID)
+        const userCourses = await UserModel.findOne({_id: user._id, Courses: courseID});
+        if(userCourses) throw createHttpError.BadRequest("این دوره قبلا خریداری شده است")
         const course = await findCourseInBasket(user._id, courseID);
         if(course){
-            await UserModel.updateOne({
-                    _id: user._id,
-                    "basket.courses.courseID": courseID
-                },
-                {
-                    $inc: {
-                        "basket.courses.$.count": 1
-                    }
-                }
-            )
+            throw createHttpError.BadRequest("این دوره قبلا به سبد خرید اضافه شده است")
         }else{
             await UserModel.updateOne({
                     _id: user._id

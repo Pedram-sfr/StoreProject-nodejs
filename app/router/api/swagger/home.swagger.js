@@ -1,15 +1,10 @@
-/**\
- * @swagger
- * tags:
- *  name: IndexPage
- *  description: index API 
- */
+
 /**
  * @swagger
  * /:
  *  get:
  *      summary: Index of Routes
- *      tags: [IndexPage]
+ *      tags: [HomePage]
  *      description: get all need data for index page
  *      parameters:
  *          -   in: header

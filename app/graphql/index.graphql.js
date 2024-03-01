@@ -2,7 +2,7 @@ const { GraphQLObjectType, GraphQLSchema } = require("graphql");
 const { BlogResolver } = require("./queries/blog.resolver");
 const { ProductResolver } = require("./queries/product.resolver");
 const { CategoriesResolver, CategoryChildResolver } = require("./queries/category.resolver");
-const { GetUserBookmarkBlogs,GetUserBookmarkProduct,GetUserBookmarkCourse } = require("./queries/user-profile.resolver");
+const { GetUserBookmarkBlogs,GetUserBookmarkProduct,GetUserBookmarkCourse,GetUserBasket } = require("./queries/user-profile.resolver");
 const { CourseResolver } = require("./queries/course.resolver");
 const { CreateCommentForBlog,CreateCommentForCourse,CreateCommentForProduct } = require("./mutations/comment.resolver");
 const { LikeProduct, LikeCourse, LikeBlog } = require("./mutations/likes.resolver");
@@ -20,7 +20,8 @@ const RootQuery = new GraphQLObjectType({
         courses: CourseResolver,
         GetUserBookmarkBlogs,
         GetUserBookmarkCourse,
-        GetUserBookmarkProduct
+        GetUserBookmarkProduct,
+        GetUserBasket
     }
 })
 const RootMutation = new GraphQLObjectType({
