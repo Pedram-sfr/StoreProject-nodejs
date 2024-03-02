@@ -5,7 +5,8 @@ const morgan = require("morgan");
 const createError = require("http-errors");
 const swaggerUI = require("swagger-ui-express");
 const swaggerJsDoc = require("swagger-jsdoc");
-const cors = require("cors")
+const cors = require("cors");
+const expressEjsLayouts = require("express-ejs-layouts")
 require("dotenv").config();
 const { AllRoutes } = require("./router/router");
 module.exports = class Appllication{
@@ -16,6 +17,7 @@ module.exports = class Appllication{
         this.#DB_URI = DB_URI;
         this.#PORT = PORT;
         this.configApplication();
+        this.initTemplateEngine();
         this.connectedToMongoDb();
         this.initRedis();
         this.createServer();
@@ -83,6 +85,14 @@ module.exports = class Appllication{
     }
     initRedis(){
         require("./utils/init_redis")
+    }
+    initTemplateEngine(){
+        this.#app.use(expressEjsLayouts);
+        this.#app.set("view engine","ejs")
+        this.#app.set("views","resource/views")
+        this.#app.set("layout extractStyles",true)
+        this.#app.set("layout extractScripts",true)
+        this.#app.set("layout","./layouts/master")
     }
     createRoutes(){
         this.#app.use(AllRoutes)
