@@ -1,7 +1,14 @@
 const { SupportController } = require("../../http/controllers/support/support.controller");
+const { checkLogin, checkAccessLogin } = require("../../http/middlewares/auth");
+const { ApiNamespaceRoute } = require("./namespace.router");
+const { ApiRoomRoute } = require("./room.router");
 
 const router = require("express").Router();
-router.get("/",SupportController.renderChatRoom)
+router.use("/namespace",ApiNamespaceRoute)
+router.use("/room",ApiRoomRoute)
+router.get("/login",checkAccessLogin,SupportController.loginForm)
+router.post("/login",checkAccessLogin,SupportController.login)
+router.get("/",checkLogin,SupportController.renderChatRoom)
 module.exports = {
     SupportSectionRouter: router
 }

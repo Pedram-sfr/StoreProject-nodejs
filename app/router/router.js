@@ -1,6 +1,6 @@
 const { graphqlHTTP } = require("express-graphql");
 const { VerifyAccessToken, checkRole } = require("../http/middlewares/verifyAccessToken");
-const redisClient = require("../utils/init_redis");
+const redisClient = require("../utils/initRedis");
 const { AdminRoutes } = require("./admin/admin.routes");
 const { HomeRoutes } = require("./api");
 const { DeveloperRoutes } = require("./developer.routes");

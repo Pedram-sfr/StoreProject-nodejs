@@ -9,6 +9,12 @@ const cors = require("cors");
 const expressEjsLayouts = require("express-ejs-layouts")
 require("dotenv").config();
 const { AllRoutes } = require("./router/router");
+const { initialSocket } = require("./utils/initSocket");
+const { socketHandler } = require("./socket.io");
+const session = require("express-session");
+const cookieParser = require("cookie-parser");
+const { COOKIE_PARSER_SECRET_KEY } = require("./utils/constans");
+const { clientHelper } = require("./utils/client");
 module.exports = class Appllication{
     #app = express()
     #DB_URI;
@@ -18,6 +24,7 @@ module.exports = class Appllication{
         this.#PORT = PORT;
         this.configApplication();
         this.initTemplateEngine();
+        this.initClientSession();
         this.connectedToMongoDb();
         this.initRedis();
         this.createServer();
@@ -62,7 +69,10 @@ module.exports = class Appllication{
     }
     createServer(){
         const http = require("http");
-        http.createServer(this.#app).listen(this.#PORT,()=>{
+        const server = http.createServer(this.#app);
+        const io = initialSocket(server);
+        socketHandler(io)
+        server.listen(this.#PORT,()=>{
             console.log("run > http://localhost:"+this.#PORT);
         })
     }
@@ -84,7 +94,7 @@ module.exports = class Appllication{
         })
     }
     initRedis(){
-        require("./utils/init_redis")
+        require("./utils/initRedis")
     }
     initTemplateEngine(){
         this.#app.use(expressEjsLayouts);
@@ -93,6 +103,21 @@ module.exports = class Appllication{
         this.#app.set("layout extractStyles",true)
         this.#app.set("layout extractScripts",true)
         this.#app.set("layout","./layouts/master")
+        this.#app.use((req,res,next)=>{
+            this.#app.locals = clientHelper(req,res);
+            next();
+        })
+    }
+    initClientSession(){
+        this.#app.use(cookieParser(COOKIE_PARSER_SECRET_KEY));
+        this.#app.use(session({
+            secret: COOKIE_PARSER_SECRET_KEY,
+            resave: true,
+            saveUninitialized: true,
+            cookie: {
+                secure: true
+            }
+        }))
     }
     createRoutes(){
         this.#app.use(AllRoutes)

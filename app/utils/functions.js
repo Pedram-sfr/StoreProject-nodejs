@@ -6,7 +6,7 @@ const {
   ACCESS_TOKEN_SECRET_KEY,
   REFRESH_TOKEN_SECRET_KEY,
 } = require("./constans");
-const redisClient = require("./init_redis");
+const redisClient = require("./initRedis");
 const path = require("path");
 const { features } = require("process");
 
